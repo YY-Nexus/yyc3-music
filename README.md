@@ -876,9 +876,9 @@ git push origin feature/new-feature
 ## 📞 联系方式
 
 - **项目维护者**: 一言一语团队
-- **邮箱**: contact@yy-music.com
-- **官网**: https://yy-music.com
-- **GitHub**: https://github.com/yy-music/speech-ai-music
+- **邮箱**: admin@0379.email
+- **官网**: https://music.mymgmt.cn
+- **GitHub**: https://github.com/YY-Nexus/yyc3-music.git
 
 ## 🙏 致谢
 
