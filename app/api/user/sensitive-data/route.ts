@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const userId = userIdSchema.parse(body.userId)
 
     // Authorization check: users can only store their own data
-    if (authenticatedUserId !== userId) {
+    if (!authenticatedUserId || authenticatedUserId !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -68,7 +68,7 @@ export async function GET(request: Request) {
     const userId = userIdSchema.parse(requestedUserId)
 
     // Authorization check: users can only access their own data
-    if (authenticatedUserId !== userId) {
+    if (!authenticatedUserId || authenticatedUserId !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 

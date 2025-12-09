@@ -2,7 +2,6 @@ import { NextResponse } from "next/server"
 import { validateCsrfToken } from "../../csrf/route"
 import { validateEmail, validatePassword } from "@/lib/security/validation"
 import { checkRateLimit, getClientIp } from "@/lib/security/auth"
-import { verifyHash } from "@/lib/security/encryption"
 
 export async function POST(request: Request) {
   try {

@@ -48,18 +48,15 @@ export function checkRateLimit(identifier: string, maxRequests = 5, windowMs = 6
   return true
 }
 
-// Clean up expired rate limit records periodically
-setInterval(
-  () => {
-    const now = Date.now()
-    for (const [key, value] of rateLimitStore.entries()) {
-      if (now > value.resetTime) {
-        rateLimitStore.delete(key)
-      }
+// Clean up expired rate limit records on-demand to avoid background tasks in serverless
+export function cleanupRateLimitStore(): void {
+  const now = Date.now()
+  for (const [key, value] of rateLimitStore.entries()) {
+    if (now > value.resetTime) {
+      rateLimitStore.delete(key)
     }
-  },
-  5 * 60 * 1000,
-) // Clean up every 5 minutes
+  }
+}
 
 // Get client IP address
 export function getClientIp(request: Request): string {

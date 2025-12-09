@@ -4,8 +4,12 @@ import { categorySchema } from "@/lib/security/validation"
 import { isAuthenticated } from "@/lib/security/auth"
 import { validateCsrfToken } from "../csrf/route"
 
-// Whitelist of allowed API endpoints
-const ALLOWED_API_BASE = process.env.TRENDING_API_URL || "https://api.example.com"
+// Whitelist of allowed API endpoints - must be configured in environment
+const ALLOWED_API_BASE =
+  process.env.TRENDING_API_URL ||
+  (() => {
+    throw new Error("TRENDING_API_URL environment variable is required")
+  })()
 
 // Use Next.js 13 caching mechanism
 export async function GET(request: Request) {
