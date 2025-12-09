@@ -6,18 +6,25 @@ const IV_LENGTH = 16 // 初始化向量长度
 const KEY_LENGTH = 32 // 密钥长度 (256 bits)
 const AUTH_TAG_LENGTH = 16 // 认证标签长度
 
-// 从环境变量获取加密密钥，或生成一个随机密钥
+// Get encryption key from environment variable
 const getEncryptionKey = (): Buffer => {
   const envKey = process.env.ENCRYPTION_KEY
 
-  if (envKey && Buffer.from(envKey, "hex").length === KEY_LENGTH) {
-    return Buffer.from(envKey, "hex")
+  if (!envKey) {
+    throw new Error(
+      "ENCRYPTION_KEY environment variable is required. Generate one with: openssl rand -hex 32"
+    )
   }
 
-  // 如果环境变量中没有有效的密钥，生成一个随机密钥
-  // 注意：在生产环境中，应该使用一个固定的密钥并妥善保管
-  console.warn("No valid encryption key found in environment variables. Using a random key.")
-  return crypto.randomBytes(KEY_LENGTH)
+  const keyBuffer = Buffer.from(envKey, "hex")
+
+  if (keyBuffer.length !== KEY_LENGTH) {
+    throw new Error(
+      `Invalid ENCRYPTION_KEY length. Expected ${KEY_LENGTH} bytes (64 hex characters), got ${keyBuffer.length} bytes`
+    )
+  }
+
+  return keyBuffer
 }
 
 // 加密数据
@@ -39,13 +46,13 @@ export function encrypt(text: string): { encryptedData: string; iv: string; auth
   }
 }
 
-// 解密数据
+// Decrypt data
 export function decrypt(encryptedData: string, iv: string, authTag: string): string {
   try {
     const key = getEncryptionKey()
     const decipher = crypto.createDecipheriv(ALGORITHM, key, Buffer.from(iv, "hex"))
 
-    // 设置认证标签
+    // Set authentication tag
     decipher.setAuthTag(Buffer.from(authTag, "hex"))
 
     let decrypted = decipher.update(encryptedData, "hex", "utf8")
@@ -53,8 +60,9 @@ export function decrypt(encryptedData: string, iv: string, authTag: string): str
 
     return decrypted
   } catch (error) {
-    console.error("Decryption failed:", error)
-    throw new Error("Decryption failed. Data may have been tampered with.")
+    // Log error securely without exposing details
+    console.error("Decryption failed")
+    throw new Error("Data verification failed")
   }
 }
 
