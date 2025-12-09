@@ -51,7 +51,7 @@ export function validateEmail(email: unknown): string {
 export function validatePassword(password: unknown): string {
   const result = passwordSchema.safeParse(password)
   if (!result.success) {
-    throw new Error(result.error.errors[0].message)
+    throw new Error(result.error.issues[0].message)
   }
   return result.data
 }
@@ -60,7 +60,7 @@ export function validatePassword(password: unknown): string {
 export function validate<T>(schema: z.ZodSchema<T>, data: unknown): T {
   const result = schema.safeParse(data)
   if (!result.success) {
-    throw new Error(result.error.errors[0].message)
+    throw new Error(result.error.issues[0].message)
   }
   return result.data
 }
