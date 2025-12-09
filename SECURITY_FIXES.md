@@ -72,6 +72,14 @@ This document details the 10 critical security vulnerabilities that were identif
 - Application now fails fast if key is missing or invalid
 - Added `.env.example` with setup instructions
 
+### 11. Next.js RCE Vulnerability (CVE-2025-66478)
+**Severity:** CRITICAL  
+**File:** `package.json`  
+**Issue:** Next.js 15.4.7 vulnerable to Remote Code Execution in React flight protocol.  
+**Fix:** 
+- Updated Next.js from 15.4.7 to 15.4.8 (patched version)
+- Verified no critical vulnerabilities remain in dependencies
+
 ## New Security Modules
 
 ### lib/security/validation.ts
