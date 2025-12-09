@@ -1,5 +1,4 @@
 import { cookies } from "next/headers"
-import { generateToken } from "./encryption"
 
 // Check if user is authenticated
 export async function isAuthenticated(request: Request): Promise<boolean> {
@@ -23,7 +22,10 @@ export async function getUserId(request: Request): Promise<string | null> {
   return userId || null
 }
 
-// Rate limiting store (in production, use Redis or similar)
+// Rate limiting store 
+// WARNING: In-memory store is not suitable for production serverless environments
+// For production, use Redis, Upstash, or similar distributed cache
+// Example: import { Redis } from '@upstash/redis'
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
 
 // Rate limiting function

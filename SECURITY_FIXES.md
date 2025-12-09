@@ -137,7 +137,10 @@ This document details the 10 critical security vulnerabilities that were identif
 ## Additional Security Considerations
 
 For production deployment, consider:
-- Using Redis or similar for distributed rate limiting
+- **CRITICAL**: Replace in-memory rate limiting with Redis or Upstash for distributed/serverless environments
+  - Current implementation uses in-memory Map which doesn't work across serverless instances
+  - Recommended: @upstash/redis or @upstash/ratelimit for serverless
+  - Alternative: Redis with ioredis for traditional deployments
 - Implementing proper session management with secure cookies
 - Adding request signing for API authentication
 - Implementing comprehensive audit logging
