@@ -1,45 +1,79 @@
 import { NextResponse } from "next/server"
 import { encrypt, decrypt } from "@/lib/security/encryption"
+import { isAuthenticated, getUserId } from "@/lib/security/auth"
+import { validateCsrfToken } from "../../csrf/route"
+import { userIdSchema } from "@/lib/security/validation"
 
-// 存储敏感数据
+// Store sensitive data
 export async function POST(request: Request) {
   try {
-    const { userId, sensitiveData } = await request.json()
+    // Check authentication
+    if (!(await isAuthenticated(request))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
-    if (!userId || !sensitiveData) {
+    // Verify CSRF token
+    const isValidCsrf = await validateCsrfToken(request)
+    if (!isValidCsrf) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 403 })
+    }
+
+    const authenticatedUserId = await getUserId(request)
+    const body = await request.json()
+    
+    // Validate userId format
+    const userId = userIdSchema.parse(body.userId)
+
+    // Authorization check: users can only store their own data
+    if (!authenticatedUserId || authenticatedUserId !== userId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    if (!body.sensitiveData) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    // 加密敏感数据
-    const { encryptedData, iv, authTag } = encrypt(JSON.stringify(sensitiveData))
+    // Encrypt sensitive data
+    const { encryptedData, iv, authTag } = encrypt(JSON.stringify(body.sensitiveData))
 
-    // 在实际应用中，这里会将加密后的数据存储到数据库
-    // 这里仅作演示，返回加密后的数据
+    // In production, store encrypted data in database with userId
+    // await db.storeSensitiveData(userId, encryptedData, iv, authTag)
+
     return NextResponse.json({
-      userId,
-      encryptedData,
-      iv,
-      authTag,
-      message: "Sensitive data encrypted and stored successfully",
+      message: "Data stored successfully",
     })
   } catch (error) {
-    console.error("Error storing sensitive data:", error)
-    return NextResponse.json({ error: "Failed to store sensitive data" }, { status: 500 })
+    // Generic error to prevent information disclosure
+    return NextResponse.json({ error: "Unable to process request" }, { status: 400 })
   }
 }
 
-// 获取敏感数据
+// Retrieve sensitive data
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("userId")
+    // Check authentication
+    if (!(await isAuthenticated(request))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
-    if (!userId) {
+    const authenticatedUserId = await getUserId(request)
+    const { searchParams } = new URL(request.url)
+    const requestedUserId = searchParams.get("userId")
+
+    if (!requestedUserId) {
       return NextResponse.json({ error: "Missing userId parameter" }, { status: 400 })
     }
 
-    // 在实际应用中，这里会从数据库获取加密的数据
-    // 这里仅作演示，使用模拟数据
+    // Validate userId format
+    const userId = userIdSchema.parse(requestedUserId)
+
+    // Authorization check: users can only access their own data
+    if (!authenticatedUserId || authenticatedUserId !== userId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    // In production, fetch encrypted data from database
+    // const data = await db.getSensitiveData(userId)
     const mockEncryptedData = {
       encryptedData: "5b7e7f8a9b0c1d2e3f4a5b6c7d8e9f0a",
       iv: "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
@@ -47,22 +81,18 @@ export async function GET(request: Request) {
     }
 
     try {
-      // 尝试解密数据
+      // Decrypt data
       const decryptedData = decrypt(mockEncryptedData.encryptedData, mockEncryptedData.iv, mockEncryptedData.authTag)
 
       return NextResponse.json({
-        userId,
         sensitiveData: JSON.parse(decryptedData),
-        message: "Sensitive data retrieved and decrypted successfully",
       })
     } catch (error) {
-      return NextResponse.json(
-        { error: "Data integrity check failed. Data may have been tampered with." },
-        { status: 403 },
-      )
+      // Data integrity check failed
+      return NextResponse.json({ error: "Data verification failed" }, { status: 403 })
     }
   } catch (error) {
-    console.error("Error retrieving sensitive data:", error)
-    return NextResponse.json({ error: "Failed to retrieve sensitive data" }, { status: 500 })
+    // Generic error to prevent information disclosure
+    return NextResponse.json({ error: "Unable to process request" }, { status: 400 })
   }
 }
