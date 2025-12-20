@@ -39,7 +39,7 @@
     "expo-gl": "latest",
     "framer-motion": "latest",
     "lucide-react": "^0.454.0",
-    "next": "^15.4.10",
+    "next": "15.4.10",
     "next-international": "^1.2.4",
     "postcss": "8.4.31",
     "react": "^19",
@@ -66,6 +66,6 @@
     "jsdom": "^23.0.1",
     "postcss": "^8.4",
     "typescript": "^5",
-    "vitest": "^1.6.1"
+    "vitest": "^4.0.15"
   }
 }
