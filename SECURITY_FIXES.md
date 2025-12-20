@@ -72,13 +72,17 @@ This document details the 10 critical security vulnerabilities that were identif
 - Application now fails fast if key is missing or invalid
 - Added `.env.example` with setup instructions
 
-### 11. Next.js RCE Vulnerability (CVE-2025-66478)
-**Severity:** CRITICAL  
-**File:** `package.json`  
-**Issue:** Next.js 15.4.7 vulnerable to Remote Code Execution in React flight protocol.  
+### 11. Next.js Security Vulnerabilities (Multiple CVEs)
+**Severity:** CRITICAL/HIGH  
+**File:** `package.json`, `package-lock.json`  
+**Issues:** 
+- GHSA-w37m-7fhw-fmv9: Next.js Server Actions Source Code Exposure (affects 15.4.0-canary.0 to 15.4.8)
+- GHSA-mwv6-3258-q52c: Next.js Denial of Service with Server Components (affects 15.4.0-canary.0 to 15.4.8)
+- GHSA-5j59-xgg2-r9c4: Next.js Denial of Service with Server Components - Incomplete Fix Follow-Up (affects 15.4.9)
 **Fix:** 
-- Updated Next.js from 15.4.7 to 15.4.8 (patched version)
-- Verified no critical vulnerabilities remain in dependencies
+- Updated Next.js from 15.4.9 to 15.4.10 (patched version)
+- Updated package-lock.json to ensure proper version resolution
+- Verified no high or critical vulnerabilities remain in production dependencies
 
 ## New Security Modules
 
